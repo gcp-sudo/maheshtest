@@ -16,25 +16,23 @@ pipeline {
         stage('Identify Changes') {
             steps {
                 script {
-                    // Get the SHA of the last successful commit
-                    def lastSuccessfulCommitSHA = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    // Get the last successful build number
+                    def lastSuccessfulBuildNumber = currentBuild.previousSuccessfulBuild?.number ?: 0
 
-                    // Get the SHA of the current commit
-                    def currentCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-
-                    // Identify the changed .sql files between the last successful commit and the current commit
-                    def changedFiles = sh(returnStdout: true, script: "git diff --diff-filter=AM --name-only ${lastSuccessfulCommitSHA}..${currentCommitSHA}").trim()
-
-                    // Split the output into individual lines
-                    def changedFilesList = changedFiles.readLines()
+                    // Get the changes between the last successful build and the current build
+                    def changeSet = currentBuild.changeSets.find { it.buildNumber == lastSuccessfulBuildNumber }
 
                     // Process the changed files and determine if they are modified or newly added
                     def modifiedAndAddedSqlFiles = []
 
-                    changedFilesList.each { filePath ->
-                        // Check if the file is an .sql file and is either modified or newly added
-                        if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
-                            modifiedAndAddedSqlFiles.add("wewe ${filePath}")
+                    if (changeSet) {
+                        changeSet.items.each { change ->
+                            def filePath = change.path
+
+                            // Check if the file is an .sql file and is either modified or newly added
+                            if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
+                                modifiedAndAddedSqlFiles.add("wewe ${filePath}")
+                            }
                         }
                     }
 
