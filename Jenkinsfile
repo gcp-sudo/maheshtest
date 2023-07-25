@@ -19,7 +19,7 @@ pipeline {
 
     options {
         // Preserve the workspace so that the 'xyz' file from the previous build is retained
-        preserveWorkspace()
+        [$class: 'WorkspaceCleanup']
     }
 
     stages {
