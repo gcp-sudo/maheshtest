@@ -16,9 +16,15 @@ pipeline {
         stage('Identify Changes') {
             steps {
                 script {
-                    // Get the SHA of the last push and the current push
+                    // Check if GITHUB_BEFORE_SHA and GITHUB_SHA are available
                     def lastPushSHA = env.GITHUB_BEFORE_SHA
                     def currentPushSHA = env.GITHUB_SHA
+
+                    // If not available, fetch the latest commit SHAs from the remote repository
+                    if (!lastPushSHA || !currentPushSHA) {
+                        lastPushSHA = sh(returnStdout: true, script: "git ls-remote origin -h refs/heads/main").trim().split()[0]
+                        currentPushSHA = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+                    }
 
                     // Identify the changed .sql files between the last push and the current push
                     def changedFiles = sh(returnStdout: true, script: "git diff --name-status --diff-filter=AM ${lastPushSHA}..${currentPushSHA}").trim()
