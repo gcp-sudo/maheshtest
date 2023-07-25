@@ -1,3 +1,16 @@
+// Define the getChangedFilesList function outside the pipeline block
+def getChangedFilesList() {
+    def changedFiles = []
+    for (changeLogSet in currentBuild.changeSets) {
+        for (entry in changeLogSet.getItems()) { // for each commit in the detected changes
+            for (file in entry.getAffectedFiles()) {
+                changedFiles.add(file.getPath()) // add changed file to list
+            }
+        }
+    }
+    return changedFiles
+}
+
 pipeline {
     agent any
 
@@ -14,19 +27,6 @@ pipeline {
         stage('Identify Changes') {
             steps {
                 script {
-                    // Define the getChangedFilesList function
-                    def getChangedFilesList() {
-                        def changedFiles = []
-                        for (changeLogSet in currentBuild.changeSets) {
-                            for (entry in changeLogSet.getItems()) { // for each commit in the detected changes
-                                for (file in entry.getAffectedFiles()) {
-                                    changedFiles.add(file.getPath()) // add changed file to list
-                                }
-                            }
-                        }
-                        return changedFiles
-                    }
-
                     // Call the function to get the list of changed files
                     def changedFilesList = getChangedFilesList()
 
