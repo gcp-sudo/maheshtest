@@ -44,7 +44,6 @@ pipeline {
 
                     // Save the modified .sql files to a new file 'xyz' with their paths
                     writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
-    
                     
                 }
             }
@@ -59,8 +58,6 @@ pipeline {
             // Echo the contents to the Jenkins console output
             echo "Contents of xyz file:"
             echo xyzContents
-            def sqlfiles = readFile(file: 'sql_files.txt')
-            echo sqlfiles
         }
     }
 }
