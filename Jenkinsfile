@@ -23,7 +23,7 @@ pipeline {
                     def prevCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD^').trim()
 
                     // Identify the changed .sql files since the last commit
-                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA} ").trim()
+                     def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA}").trim()
 
                     // Split the output into individual lines
                     def changedFilesList = changedFiles.readLines()
