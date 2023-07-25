@@ -2,13 +2,22 @@ pipeline {
     agent any
 
     stages {
+        stage('Fetch Remote Changes') {
+            steps {
+                script {
+                    // Fetch the latest changes from the remote branch
+                    sh 'git fetch origin'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 // Checkout the repository from GitHub
                 // Replace 'your-github-repo-url' with your actual repository URL
                 // Make sure you have the necessary credentials configured in Jenkins
                 checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']], // Replace 'main' with your desired branch
+                          branches: [[name: 'origin/main']], // Replace 'main' with your desired remote branch
                           userRemoteConfigs: [[url: 'https://github.com/gcp-sudo/maheshtest.git']]])
             }
         }
@@ -16,7 +25,7 @@ pipeline {
         stage('Identify Changes') {
             steps {
                 script {
-                    // Get the last successful build number
+                    // Get the SHA of the last successful build
                     def lastSuccessfulBuildNumber = currentBuild.previousSuccessfulBuild?.number ?: 0
 
                     // Get the changes between the last successful build and the current build
