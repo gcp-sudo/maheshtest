@@ -17,12 +17,14 @@ def getChangedFilesList() {
 pipeline {
     agent any
 
-    options {
-        // Preserve the workspace so that the 'xyz' file from the previous build is retained
-        [$class: 'WorkspaceCleanup']
-    }
-
     stages {
+        stage('Clean Workspace') {
+            steps {
+                // Clean the workspace to remove files from the previous build
+                cleanWs()
+            }
+        }
+
         stage('Check for Changes') {
             steps {
                 script {
