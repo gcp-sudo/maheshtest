@@ -17,6 +17,11 @@ def getChangedFilesList() {
 pipeline {
     agent any
 
+    options {
+        // Preserve the workspace so that the 'xyz' file from the previous build is retained
+        preserveWorkspace()
+    }
+
     stages {
         stage('Check for Changes') {
             steps {
@@ -26,8 +31,9 @@ pipeline {
 
                     // If there are no changed files, proceed to the Display XYZ Contents stage directly
                     if (changedFilesList.isEmpty()) {
-                        echo "No changes detected. Skipping Identify Changes stage."
+                        echo "No changes detected. Displaying the previous 'xyz' file."
                         build 'Display XYZ Contents'
+                        return
                     }
                 }
             }
