@@ -1,12 +1,15 @@
-// Define the getChangedFilesList function outside the pipeline block
 def getChangedFilesList() {
     def changedFiles = []
-    for (changeLogSet in currentBuild.changeSets) {
-        for (entry in changeLogSet.getItems()) { // for each commit in the detected changes
-            for (file in entry.getAffectedFiles()) {
-                changedFiles.add(file.getPath()) // add changed file to list
+    try {
+        for (changeLogSet in currentBuild.changeSets) {
+            for (entry in changeLogSet.getItems()) { // for each commit in the detected changes
+                for (file in entry.getAffectedFiles()) {
+                    changedFiles.add(file.getPath()) // add changed file to list
+                }
             }
         }
+    } catch (Exception e) {
+        echo "Error occurred while identifying changes: ${e.message}"
     }
     return changedFiles
 }
@@ -15,6 +18,21 @@ pipeline {
     agent any
 
     stages {
+        stage('Check for Changes') {
+            steps {
+                script {
+                    // Call the function to get the list of changed files
+                    def changedFilesList = getChangedFilesList()
+
+                    // If there are no changed files, proceed to the Display XYZ Contents stage directly
+                    if (changedFilesList.isEmpty()) {
+                        echo "No changes detected. Skipping Identify Changes stage."
+                        build 'Display XYZ Contents'
+                    }
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 // Checkout the repository from GitHub
@@ -46,8 +64,6 @@ pipeline {
             }
         }
 
-        // Add more stages here for additional actions, tests, etc.
-        
         stage('Display XYZ Contents') {
             steps {
                 script {
