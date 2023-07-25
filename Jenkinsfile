@@ -25,23 +25,22 @@ pipeline {
         stage('Identify Changes') {
             steps {
                 script {
-                    // Get the SHA of the last successful build
-                    def lastSuccessfulBuildNumber = currentBuild.previousSuccessfulBuild?.number ?: 0
+                    // Get the SHA of the last modification on the remote branch
+                    def lastRemoteCommitSHA = sh(returnStdout: true, script: 'git ls-remote origin -h refs/heads/main').trim().split()[0]
 
-                    // Get the changes between the last successful build and the current build
-                    def changeSet = currentBuild.changeSets.find { it.buildNumber == lastSuccessfulBuildNumber }
+                    // Identify the changed .sql files between the last remote modification and the current local state
+                    def changedFiles = sh(returnStdout: true, script: "git diff --diff-filter=AM --name-only ${lastRemoteCommitSHA}..HEAD").trim()
+
+                    // Split the output into individual lines
+                    def changedFilesList = changedFiles.readLines()
 
                     // Process the changed files and determine if they are modified or newly added
                     def modifiedAndAddedSqlFiles = []
 
-                    if (changeSet) {
-                        changeSet.items.each { change ->
-                            def filePath = change.path
-
-                            // Check if the file is an .sql file and is either modified or newly added
-                            if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
-                                modifiedAndAddedSqlFiles.add("wewe ${filePath}")
-                            }
+                    changedFilesList.each { filePath ->
+                        // Check if the file is an .sql file and is either modified or newly added
+                        if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
+                            modifiedAndAddedSqlFiles.add("wewe ${filePath}")
                         }
                     }
 
