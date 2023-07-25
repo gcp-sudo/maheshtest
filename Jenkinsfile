@@ -22,36 +22,28 @@ pipeline {
                     // Get the SHA of the previous commit
                     def prevCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD^').trim()
 
-                    // Identify the changed files since the last commit
-                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA}").trim()
+                    // Identify the changed .sql files since the last commit
+                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA} -- '*.sql'").trim()
 
                     // Split the output into individual lines
                     def changedFilesList = changedFiles.readLines()
 
-                    // Process the changed files and determine if they are modified or newly added
-                    def modifiedFiles = []
-                    def newlyAddedFiles = []
+                    // Process the changed files and determine if they are modified
+                    def modifiedSqlFiles = []
 
                     changedFilesList.each { line ->
                         def parts = line.split()
                         def changeType = parts[0]
                         def filePath = parts[1]
 
-                        // 'A' indicates a newly added file, 'M' indicates a modified file
-                        if (changeType in ['A', 'M']) {
-                            if (changeType == 'A') {
-                                newlyAddedFiles.add(filePath)
-                            } else {
-                                modifiedFiles.add(filePath)
-                            }
+                        // 'M' indicates a modified file
+                        if (changeType == 'M') {
+                            modifiedSqlFiles.add(filePath)
                         }
                     }
 
-                    // Display the modified and newly added files
-                    echo "Modified Files:"
-                    echo modifiedFiles.join('\n')
-                    echo "Newly Added Files:"
-                    echo newlyAddedFiles.join('\n')
+                    // Save the modified .sql files to a new file 'xyz' with their paths
+                    writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
                 }
             }
         }
@@ -59,4 +51,3 @@ pipeline {
         // Add more stages here for additional actions, tests, etc.
     }
 }
-
