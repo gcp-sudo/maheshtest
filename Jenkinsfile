@@ -8,7 +8,7 @@ pipeline {
                 // Replace 'your-github-repo-url' with your actual repository URL
                 // Make sure you have the necessary credentials configured in Jenkins
                 checkout([$class: 'GitSCM',
-                          branches: [[name: '*/master']], // Replace 'master' with your desired branch
+                          branches: [[name: '*/main']], // Replace 'master' with your desired branch
                           userRemoteConfigs: [[url: 'your-github-repo-url']]])
             }
         }
