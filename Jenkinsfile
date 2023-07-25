@@ -43,12 +43,7 @@ pipeline {
                     }
 
                     // Save the modified .sql files to a new file 'xyz' with their filenames and paths
-                    def filenamesWithPaths = modifiedSqlFiles.collect { file ->
-                        // Extract the filename from the full path
-                        file.substring(file.lastIndexOf('/') + 1)
-                    }
-
-                    writeFile file: 'xyz', text: filenamesWithPaths.join('\n')
+                    writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
                 }
             }
         }
