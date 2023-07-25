@@ -44,13 +44,22 @@ pipeline {
 
                     // Save the modified .sql files to a new file 'xyz' with their paths
                     writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
-                    sh '''
-                    cat xyz
-                    '''
+                    
                 }
             }
         }
         
         // Add more stages here for additional actions, tests, etc.
+        stage('Display XYZ Contents') {
+    steps {
+        script {
+            // Read the contents of the 'xyz' file
+            def xyzContents = readFile(file: 'xyz')
+            // Echo the contents to the Jenkins console output
+            echo "Contents of xyz file:"
+            echo xyzContents
+        }
+    }
+}
     }
 }
