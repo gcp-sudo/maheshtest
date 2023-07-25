@@ -17,10 +17,10 @@ pipeline {
             steps {
                 script {
                     // Get the SHA of the last commit
-                    // def lastCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    //def lastCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 
                     // Get the SHA of the previous commit
-                   // def prevCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD^').trim()
+                    //def prevCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD^').trim()
 
                     // Identify the changed .sql files since the last commit
                     def changedFiles = sh(returnStdout: true, script: "git diff --name-status --diff-filter=AM ").trim()
