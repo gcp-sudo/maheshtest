@@ -39,7 +39,7 @@ pipeline {
                         changedFilesList.each { filePath ->
                             // Check if the file is an .sql file and is either modified or newly added
                             if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
-                                modifiedAndAddedSqlFiles.add("wewe ${filePath}")
+                                modifiedAndAddedSqlFiles.add("!source ${filePath}")
                             }
                         }
 
