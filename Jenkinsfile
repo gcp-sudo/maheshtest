@@ -23,27 +23,23 @@ pipeline {
                     def prevCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD^').trim()
 
                     // Identify the changed .sql files since the last commit
-                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA}").trim()
+                    def changedFiles = sh(returnStdout: true, script: "git diff --diff-filter=AM --name-only ${prevCommitSHA}..${lastCommitSHA}").trim()
 
                     // Split the output into individual lines
                     def changedFilesList = changedFiles.readLines()
 
-                    // Process the changed files and determine if they are modified
-                    def modifiedSqlFiles = []
+                    // Process the changed files and determine if they are modified or newly added
+                    def modifiedAndAddedSqlFiles = []
 
-                    changedFilesList.each { line ->
-                        def parts = line.split()
-                        def changeType = parts[0]
-                        def filePath = parts[1]
-
-                        // 'M' indicates a modified file
-                        if (changeType == 'M' && filePath.endsWith('.sql')) {
-                            modifiedSqlFiles.add(filePath)
+                    changedFilesList.each { filePath ->
+                        // Check if the file is an .sql file and is either modified or newly added
+                        if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
+                            modifiedAndAddedSqlFiles.add("wewe ${filePath}")
                         }
                     }
 
-                    // Save the modified .sql files to a new file 'xyz' with their filenames and paths
-                    writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
+                    // Save the modified and newly added .sql files to a new file 'xyz' with their filenames and paths
+                    writeFile file: 'xyz', text: "qwsdsdf\nadfsfsdf\n${modifiedAndAddedSqlFiles.join('\n')}\nqwqd\ndsfefg"
                 }
             }
         }
