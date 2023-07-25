@@ -44,6 +44,9 @@ pipeline {
 
                     // Save the modified .sql files to a new file 'xyz' with their paths
                     writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
+                    sh '''
+                    cat xyz
+                    '''
                 }
             }
         }
