@@ -44,6 +44,11 @@ pipeline {
 
                     // Save the modified .sql files to a new file 'xyz' with their paths
                     writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
+                    / Filter the files ending with .sql
+                    def sqlFiles = modifiedAndAddedFiles.findAll { it.endsWith('.sql') }
+                    // Create a file to store the paths of SQL files
+                    def sqlFilePaths = 'sql_files.txt'
+                    writeFile file: sqlFilePaths, text: sqlFiles.join('\n')
                     
                 }
             }
@@ -58,6 +63,8 @@ pipeline {
             // Echo the contents to the Jenkins console output
             echo "Contents of xyz file:"
             echo xyzContents
+            def sqlfiles = readFile(file: 'sql_files.txt')
+            echo sqlfiles
         }
     }
 }
