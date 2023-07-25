@@ -8,7 +8,7 @@ pipeline {
                 // Replace 'your-github-repo-url' with your actual repository URL
                 // Make sure you have the necessary credentials configured in Jenkins
                 checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']], // Replace 'master' with your desired branch
+                          branches: [[name: '*/main']], // Replace 'main' with your desired branch
                           userRemoteConfigs: [[url: 'https://github.com/gcp-sudo/maheshtest.git']]])
             }
         }
@@ -23,7 +23,7 @@ pipeline {
                     def prevCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD^').trim()
 
                     // Identify the changed .sql files since the last commit
-                     def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA}").trim()
+                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status ${prevCommitSHA}..${lastCommitSHA}").trim()
 
                     // Split the output into individual lines
                     def changedFilesList = changedFiles.readLines()
@@ -37,29 +37,34 @@ pipeline {
                         def filePath = parts[1]
 
                         // 'M' indicates a modified file
-                        if (changeType == 'M') {
+                        if (changeType == 'M' && filePath.endsWith('.sql')) {
                             modifiedSqlFiles.add(filePath)
                         }
                     }
 
-                    // Save the modified .sql files to a new file 'xyz' with their paths
-                    writeFile file: 'xyz', text: modifiedSqlFiles.join('\n')
-                    
+                    // Save the modified .sql files to a new file 'xyz' with their filenames and paths
+                    def filenamesWithPaths = modifiedSqlFiles.collect { file ->
+                        // Extract the filename from the full path
+                        file.substring(file.lastIndexOf('/') + 1)
+                    }
+
+                    writeFile file: 'xyz', text: filenamesWithPaths.join('\n')
                 }
             }
         }
-        
+
         // Add more stages here for additional actions, tests, etc.
+        
         stage('Display XYZ Contents') {
-    steps {
-        script {
-            // Read the contents of the 'xyz' file
-            def xyzContents = readFile(file: 'xyz')
-            // Echo the contents to the Jenkins console output
-            echo "Contents of xyz file:"
-            echo xyzContents
+            steps {
+                script {
+                    // Read the contents of the 'xyz' file
+                    def xyzContents = readFile(file: 'xyz')
+                    // Echo the contents to the Jenkins console output
+                    echo "Contents of xyz file:"
+                    echo xyzContents
+                }
+            }
         }
-    }
-}
     }
 }
