@@ -16,14 +16,12 @@ pipeline {
         stage('Identify Changes') {
             steps {
                 script {
-                    // Get the SHA of the last successful commit
-                   // def lastSuccessfulCommitSHA = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    // Get the SHA of the last push and the current push
+                    def lastPushSHA = env.GITHUB_BEFORE_SHA
+                    def currentPushSHA = env.GITHUB_SHA
 
-                    // Get the SHA of the current commit
-                    //def currentCommitSHA = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-
-                    // Identify the changed .sql files between the last successful commit and the current commit
-                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status --diff-filter=AM ").trim()
+                    // Identify the changed .sql files between the last push and the current push
+                    def changedFiles = sh(returnStdout: true, script: "git diff --name-status --diff-filter=AM ${lastPushSHA}..${currentPushSHA}").trim()
 
                     // Split the output into individual lines
                     def changedFilesList = changedFiles.readLines()
