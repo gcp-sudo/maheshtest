@@ -9,7 +9,7 @@ pipeline {
                 // Make sure you have the necessary credentials configured in Jenkins
                 checkout([$class: 'GitSCM',
                           branches: [[name: '*/main']], // Replace 'master' with your desired branch
-                          userRemoteConfigs: [[url: 'your-github-repo-url']]])
+                          userRemoteConfigs: [[url: 'https://github.com/gcp-sudo/maheshtest.git']]])
             }
         }
 
