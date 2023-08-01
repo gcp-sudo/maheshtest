@@ -87,6 +87,11 @@ def getChangedFilesList() {
     // Function implementation to identify changed files
     // (This part remains unchanged from your original script)
 }
+def getChangedFilesList() {
+    // Function implementation to identify changed files
+    // (This part remains unchanged from your original script)
+}
+
         stage('Copy SQL Files to Change Request Folder') {
             // This stage copies the SQL files to a "changerequest" folder,
             // separated by a date folder.
@@ -113,16 +118,9 @@ def getChangedFilesList() {
                     def modifiedAndAddedSqlFiles = []
 
                     changedFilesList.each { filePath ->
-                        // Check if the file is an .sql file
-                        if (filePath.endsWith('.sql')) {
-                            // If it's a parent.sql file, extract the modified .sql contents
-                            if (filePath.endsWith('parent.sql')) {
-                                def modifiedContents = readFile(file: filePath)
-                                modifiedAndAddedSqlFiles.addAll(modifiedContents.readLines().findAll { it.endsWith('.sql') })
-                            } else {
-                                // Otherwise, add the file directly to the list
-                                modifiedAndAddedSqlFiles.add(filePath)
-                            }
+                        // Check if the file is an .sql file and is not "parent.sql"
+                        if (filePath.endsWith('.sql') && !filePath.endsWith('parent.sql')) {
+                            modifiedAndAddedSqlFiles.add(filePath)
                         }
                     }
 
@@ -132,5 +130,6 @@ def getChangedFilesList() {
                     }
                 }
             }
+
     }
 }
