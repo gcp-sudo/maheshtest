@@ -102,7 +102,7 @@ pipeline {
                     // Stash the modified and newly added .sql files along with their directory structure
                     stash name: 'sql_files', includes: '**/*.sql', allowEmpty: true
                     
-                    // Unstash the .sql files in the "Display XYZ Contents" stage
+                    // Unstash the .sql files in the "Display xyz Contents" stage
                     unstash 'sql_files'
                     
                     // Move the .sql files to the change request folder preserving their directory structure
