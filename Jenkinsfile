@@ -83,6 +83,10 @@ pipeline {
                 }
             }
         }
+def getChangedFilesList() {
+    // Function implementation to identify changed files
+    // (This part remains unchanged from your original script)
+}
         stage('Copy SQL Files to Change Request Folder') {
             // This stage copies the SQL files to a "changerequest" folder,
             // separated by a date folder.
@@ -96,20 +100,37 @@ pipeline {
                     def buildNumber = currentBuild.number
                     def changeRequestFolder = "changerequest/${currentDate}/build${buildNumber}"
                     
-                    // Create the date folder and build folder
+                    // Check if the date folder exists, if not, create it
+                    sh "mkdir -p changerequest/${currentDate}"
+                    
+                    // Check if the build folder exists, if not, create it
                     sh "mkdir -p ${changeRequestFolder}"
                     
-                    // Stash the modified and newly added .sql files along with their directory structure
-                    stash name: 'sql_files', includes: '**/*.sql', allowEmpty: true
-                    
-                    // Unstash the .sql files in the "Display xyz Contents" stage
-                    unstash 'sql_files'
-                    
+                    // Call the function to get the list of changed files
+                    def changedFilesList = getChangedFilesList()
+
+                    // Process the changed files and determine if they are modified or newly added .sql files
+                    def modifiedAndAddedSqlFiles = []
+
+                    changedFilesList.each { filePath ->
+                        // Check if the file is an .sql file
+                        if (filePath.endsWith('.sql')) {
+                            // If it's a parent.sql file, extract the modified .sql contents
+                            if (filePath.endsWith('parent.sql')) {
+                                def modifiedContents = readFile(file: filePath)
+                                modifiedAndAddedSqlFiles.addAll(modifiedContents.readLines().findAll { it.endsWith('.sql') })
+                            } else {
+                                // Otherwise, add the file directly to the list
+                                modifiedAndAddedSqlFiles.add(filePath)
+                            }
+                        }
+                    }
+
                     // Move the .sql files to the change request folder preserving their directory structure
-                    sh "cp -R **/*.sql ${changeRequestFolder}"
+                    modifiedAndAddedSqlFiles.each { sqlFile ->
+                        sh "cp --parents ${sqlFile} ${changeRequestFolder}"
+                    }
                 }
             }
-        }
-
     }
 }
