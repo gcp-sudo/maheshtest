@@ -83,5 +83,33 @@ pipeline {
                 }
             }
         }
+        stage('Copy SQL Files to Change Request Folder') {
+            // This stage copies the SQL files to a "changerequest" folder,
+            // separated by a date folder.
+            when {
+                // Only execute this stage if the previous stages were successful.
+                expression { currentBuild.result == 'SUCCESS' }
+            }
+            steps {
+                script {
+                    def currentDate = sh(returnStdout: true, script: 'date +%Y-%m-%d').trim()
+                    def buildNumber = currentBuild.number
+                    def changeRequestFolder = "changerequest/${currentDate}/build${buildNumber}"
+                    
+                    // Create the date folder and build folder
+                    sh "mkdir -p ${changeRequestFolder}"
+                    
+                    // Stash the modified and newly added .sql files along with their directory structure
+                    stash name: 'sql_files', includes: '**/*.sql', allowEmpty: true
+                    
+                    // Unstash the .sql files in the "Display XYZ Contents" stage
+                    unstash 'sql_files'
+                    
+                    // Move the .sql files to the change request folder preserving their directory structure
+                    sh "cp -R **/*.sql ${changeRequestFolder}"
+                }
+            }
+        }
+
     }
 }
