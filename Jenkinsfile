@@ -127,7 +127,24 @@ def getChangedFilesList() {
                     // Move the .sql files to the change request folder preserving their directory structure
                     modifiedAndAddedSqlFiles.each { sqlFile ->
                         sh "cp --parents ${sqlFile} ${changeRequestFolder}"
+                   
                     }
+                                        sh "cd ${changeRequestFolder}"
+                    
+                    // Configure Git credentials (you can also use SSH credentials for authentication)
+                    withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        // Set up the Git repository with the provided credentials
+                        sh "git config --global user.name 'Jenkins'"
+                        sh "git config --global user.email 'jenkins@example.com'"
+                        
+                        // Add all .sql files to the Git index
+                        sh "git add ."
+                        
+                        // Commit the changes with a custom message
+                        sh "git commit -m 'Update .sql files from Jenkins build'"
+                        
+                        // Push the changes to the remote repository
+                        sh "git push --set-upstream origin main"
                 }
             }
 
